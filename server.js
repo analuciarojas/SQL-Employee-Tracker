@@ -9,7 +9,7 @@ const connection = mysql.createConnection({
   host: 'localhost',
   port: 3306,
   user: 'root',
-  password: process.env.DB_PASSWORD,
+  password: process.env.DB_PW,
   database: 'employees_DB',
 });
 
@@ -107,3 +107,34 @@ function startPrompt() {
   });
 }
 
+// View all roles, employees or departments 
+const viewAll = (table) => {
+    let query;
+    if (table === "departments") {
+        console.log("VIEWING DEPARTMENTS\n");
+
+      query = `SELECT * FROM DEPARTMENT`;
+    } else if (table === "roles") {
+        console.log("VIEWING ROLES\n");
+
+      query = `SELECT R.id AS id, title, salary, D.name AS department
+      FROM ROLE AS R LEFT JOIN DEPARTMENT AS D
+      ON R.department_id = D.id;`;
+    } else {// Default employees
+        console.log("VIEWING EMPLOYEES\n");
+
+      query = `SELECT E.id AS id, E.first_name AS first_name, E.last_name AS last_name, 
+      R.title AS role, D.name AS department, CONCAT(M.first_name, " ", M.last_name) AS manager
+      FROM EMPLOYEE AS E LEFT JOIN ROLE AS R ON E.role_id = R.id
+      LEFT JOIN DEPARTMENT AS D ON R.department_id = D.id
+      LEFT JOIN EMPLOYEE AS M ON E.manager_id = M.id;`;
+  
+    }
+    connection.query(query, (err, res) => {
+      if (err) throw err;
+      console.table(res);
+  
+      startPrompt();
+    });
+  };
+  
