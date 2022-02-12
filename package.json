@@ -16,5 +16,12 @@
   "bugs": {
     "url": "https://github.com/analuciarojas/SQL-Employee-Tracker/issues"
   },
-  "homepage": "https://github.com/analuciarojas/SQL-Employee-Tracker#readme"
+  "homepage": "https://github.com/analuciarojas/SQL-Employee-Tracker#readme",
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "figlet": "^1.5.2",
+    "inquirer": "^8.2.0",
+    "mysql": "^2.18.1",
+    "mysql2": "^2.3.3"
+  }
 }

@@ -1,14 +1,16 @@
 // Dependencies
-require('dotenv').config();
-const mysql = require('mysql');
+const mysql = require('mysql2');
 const inquier = require('inquirer');
 const figlet = require('figlet');
+require("dotenv").config();
+
 
 // Create MySQL connection
 const connection = mysql.createConnection({
-  host: 'localhost',
-  port: 3306,
+  host: '127.0.0.1',
+  port: process.env.PORT || 3306,
   user: 'root',
+  dialect: "mysql",
   password: process.env.DB_PW,
   database: 'employees_DB',
 });
@@ -21,7 +23,7 @@ connection.connect((err) => {
   
   figlet('Employee tracker', function(err, data) {
     if (err) {
-      console.log('ascii art not loaded');
+      console.log('ascii art not working');
     } else {
       console.log(data);
     }  
@@ -123,11 +125,14 @@ const viewAll = (table) => {
     } else {// Default employees
         console.log("VIEWING EMPLOYEES\n");
 
-      query = `SELECT E.id AS id, E.first_name AS first_name, E.last_name AS last_name, 
-      R.title AS role, D.name AS department, CONCAT(M.first_name, " ", M.last_name) AS manager
-      FROM EMPLOYEE AS E LEFT JOIN ROLE AS R ON E.role_id = R.id
-      LEFT JOIN DEPARTMENT AS D ON R.department_id = D.id
-      LEFT JOIN EMPLOYEE AS M ON E.manager_id = M.id;`;
+      query = `SELECT e.id, e.first_name, e.last_name, r.title, d.name AS department, r.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager
+  FROM employee e
+  LEFT JOIN role r
+	ON e.role_id = r.id
+  LEFT JOIN department d
+  ON d.id = r.department_id
+  LEFT JOIN employee m
+	ON m.id = e.manager_id`;
   
     }
     connection.query(query, (err, res) => {
