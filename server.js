@@ -5,8 +5,6 @@ const figlet = require('figlet');
 require("dotenv").config();
 require('console.table');
 
-
-
 // Create MySQL connection
 const connection = mysql.createConnection({
   host: '127.0.0.1',
@@ -79,7 +77,7 @@ function startPrompt() {
         addDepartment();
         break;
         case "Add Role":
-        addNewRole();
+        addRole();
         break;
         case "Update Employee Role":
         updateRole();
@@ -143,6 +141,7 @@ const viewAll = (table) => {
     });
   };
 
+  // Add employee to the database 
 const addEmployee = () => {
 
     // Gather employee info to choose manager
@@ -220,5 +219,84 @@ const addEmployee = () => {
             console.error(err);
           });
       })
+    });
+  }
+
+  // Adding new department to database
+const addDepartment = () => {
+    // Department question
+    let questions = [
+      {
+        type: "input",
+        name: "name",
+        message: "what is the new department name?"
+      }
+    ];
+  
+    inquier.prompt(questions)
+    .then(response => {
+        // Add department to other departments
+      const query = `INSERT INTO department (name) VALUES (?)`;
+      connection.query(query, [response.name], (err, res) => {
+        if (err) throw err;
+        console.log(`Congrats! We could succesfully insert ${response.name} as a new department with ID ${res.insertId}`);
+        startPrompt();
+      });
+    })
+    .catch(err => {
+      console.error(err);
+    });
+  }
+
+  // Adding new role to database
+const addRole = () => {
+    // Create empty department array
+    const departments = [];
+    // Gather department info for user to choose from
+    connection.query("SELECT * FROM DEPARTMENT", (err, res) => {
+      if (err) throw err;
+  
+      res.forEach(dep => {
+        // Departments with ID
+        let qObj = {
+          name: dep.name,
+          value: dep.id
+        }
+        departments.push(qObj);
+      });
+  
+    // Questions for new role
+    let questions = [
+        {
+          type: "input",
+          name: "title",
+          message: "What is the title of the new role?"
+        },
+        {
+          type: "input",
+          name: "salary",
+          message: "What is the salary of the new role?"
+        },
+        {
+          type: "list",
+          name: "department",
+          choices: departments,
+          message: "Which department is this role in?"
+        }
+    ];
+    // Show questions
+
+      inquier.prompt(questions)
+      .then(response => {
+        const query = `INSERT INTO ROLE (title, salary, department_id) VALUES (?)`;
+        connection.query(query, [[response.title, response.salary, response.department]], (err, res) => {
+          if (err) throw err;
+          console.log(`Congrats! We could succesfully insert ${response.title} role at ID ${res.insertId}`);
+          startPrompt();
+        });
+      })
+      .catch(err => {
+        console.error(err);
+      });
     });
   }
