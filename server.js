@@ -3,6 +3,8 @@ const mysql = require('mysql2');
 const inquier = require('inquirer');
 const figlet = require('figlet');
 require("dotenv").config();
+require('console.table');
+
 
 
 // Create MySQL connection
@@ -12,7 +14,7 @@ const connection = mysql.createConnection({
   user: 'root',
   dialect: "mysql",
   password: process.env.DB_PW,
-  database: 'employees_DB',
+  database: 'employee_DB',
 });
 
 // Connect to Database
@@ -109,7 +111,7 @@ function startPrompt() {
   });
 }
 
-// View all roles, employees or departments 
+  // View all roles, employees or departments 
 const viewAll = (table) => {
     let query;
     if (table === "departments") {
@@ -142,4 +144,3 @@ const viewAll = (table) => {
       startPrompt();
     });
   };
-  

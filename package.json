@@ -18,10 +18,13 @@
   },
   "homepage": "https://github.com/analuciarojas/SQL-Employee-Tracker#readme",
   "dependencies": {
+    "console.table": "^0.10.0",
     "dotenv": "^16.0.0",
+    "express": "^4.17.2",
     "figlet": "^1.5.2",
     "inquirer": "^8.2.0",
     "mysql": "^2.18.1",
     "mysql2": "^2.3.3"
-  }
+  },
+  "devDependencies": {}
 }
