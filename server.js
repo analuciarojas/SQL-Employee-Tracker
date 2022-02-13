@@ -85,13 +85,13 @@ function startPrompt() {
         case "Update Employee Role":
         updateemployeeRole();
         break;
-        //
         case "Update Employee Manager":
         updateManager();
         break;
-        case "Delete a Department":
+       case "Delete a Department":
         deleteDepartment();
         break;
+        //
         case "Delete a Role":
         deleteRole();
         break;
@@ -492,4 +492,50 @@ const updateManager = ()=> {
         });
     })
     
+  };
+
+  // Delete department
+const deleteDepartment = () => {
+    // Empty department array;
+    const departments = [];
+
+    // Gather department info
+    connection.query("SELECT * FROM DEPARTMENT", (err, res) => {
+      if (err) throw err;
+  
+      res.forEach(dep => {
+        let qObj = {
+          name: dep.name,
+          value: dep.id
+        }
+
+        // Populate departments array 
+        departments.push(qObj);
+      });
+
+      // Questions for what department to delete
+  
+      let questions = [
+        {
+          type: "list",
+          name: "id",
+          choices: departments,
+          message: "Which department do you want to delete?"
+        }
+      ];
+       
+      // Show questions
+      inquier.prompt(questions)
+      .then(response => {
+        const query = `DELETE FROM DEPARTMENT WHERE id = ?`;
+        connection.query(query, [response.id], (err, res) => {
+          if (err) throw err;
+          console.log(`Congrats! We succesfully deleted the department ${res.affectedRows}`);
+          startPrompt();
+        });
+      })
+      .catch(err => {
+        console.error(err);
+      });
+    });
   };
