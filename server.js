@@ -70,6 +70,9 @@ function startPrompt() {
         case "View All Departments":
         viewAll("departments");
         break;
+        case "View Employees by manager":
+        viewEmployeeByManager();
+        break;
         case "Add Employee":
         addEmployee();
         break;      
@@ -79,13 +82,10 @@ function startPrompt() {
         case "Add Role":
         addRole();
         break;
-        //
         case "Update Employee Role":
         updateemployeeRole();
         break;
-        case "View Employees by manager":
-        viewEmployeeByManager();
-        break;
+        //
         case "Update Employee Manager":
         updateManager();
         break;
@@ -141,6 +141,69 @@ const viewAll = (table) => {
       startPrompt();
     });
   };
+
+  // View employees by manager
+  const viewEmployeeByManager =  () => {
+    // Gather employee info
+    connection.query("SELECT * FROM EMPLOYEE", (err, emplRes) => {
+      if (err) throw err;
+        // Empty employee object
+      const employeeChoice = [{
+        name: 'NULL',
+        value: 0
+      }];
+      emplRes.forEach(({ first_name, last_name, id }) => {
+        employeeChoice.push({
+          name: first_name + " " + last_name,
+          value: id
+        });
+      });
+       // Questions for view manager's employees
+      let questions = [
+        {
+          type: "list",
+          name: "manager_id",
+          choices: employeeChoice,
+           message: "What manager's employees do you want to see?"
+        },
+      ]
+    
+      // Show questions
+      inquier.prompt(questions)
+        .then(response => {
+          let manager_id, query;
+          if (response.manager_id) {
+            query = `SELECT E.id AS id, E.first_name AS first_name, E.last_name AS last_name, 
+            R.title AS role, D.name AS department, CONCAT(M.first_name, " ", M.last_name) AS manager
+            FROM EMPLOYEE AS E LEFT JOIN ROLE AS R ON E.role_id = R.id
+            LEFT JOIN DEPARTMENT AS D ON R.department_id = D.id
+            LEFT JOIN EMPLOYEE AS M ON E.manager_id = M.id
+            WHERE E.manager_id = ?;`;
+          } else {
+            manager_id = null;
+            query = `SELECT E.id AS id, E.first_name AS first_name, E.last_name AS last_name, 
+            R.title AS role, D.name AS department, CONCAT(M.first_name, " ", M.last_name) AS manager
+            FROM EMPLOYEE AS E LEFT JOIN ROLE AS R ON E.role_id = R.id
+            LEFT JOIN DEPARTMENT AS D ON R.department_id = D.id
+            LEFT JOIN EMPLOYEE AS M ON E.manager_id = M.id
+            WHERE E.manager_id is null;`;
+          }
+          connection.query(query, [response.manager_id], (err, res) => {
+            if (err) throw err;
+            if(res!=''){
+                console.table(res);
+            }
+            else{
+                console.log('This employee is not a manager');
+            }
+            startPrompt();
+          });
+        })
+        .catch(err => {
+          console.error(err);
+        }); 
+    });
+  }
 
   // Add employee to the database 
 const addEmployee = () => {
@@ -365,3 +428,4 @@ const updateemployeeRole = () => {
         })
     });
   }
+
