@@ -44,12 +44,12 @@ function startPrompt() {
         "View All Employees",
         "View All Roles",
         "View All Departments",
+        "View Employees by manager", 
         "Add Employee",
         "Add Department",
         "Add Role",
         "Update Employee Role",
         "Update Employee Manager",
-        "View Employees by manager", 
         "Delete a Department", 
         "Delete a Role", 
         "Delete an Employee", 
@@ -143,7 +143,7 @@ const viewAll = (table) => {
   };
 
   // View employees by manager
-  const viewEmployeeByManager =  () => {
+const viewEmployeeByManager =  () => {
     // Gather employee info
     connection.query("SELECT * FROM EMPLOYEE", (err, emplRes) => {
       if (err) throw err;
@@ -429,3 +429,67 @@ const updateemployeeRole = () => {
     });
   }
 
+  // Updating manager of employee
+const updateManager = ()=> {
+    // Gather employee info for user to choose from
+    connection.query("SELECT * FROM EMPLOYEE", (err, emplRes) => {
+      if (err) throw err;
+      // Empty employee array
+      const employeeChoice = [];
+      emplRes.forEach(({ first_name, last_name, id }) => {
+        employeeChoice.push({
+          name: first_name + " " + last_name,
+          value: id
+        });
+      });
+      // If employee has no manager
+      
+      const managerChoice = [{
+        name: 'NULL',
+        value: 0
+      }]; 
+      emplRes.forEach(({ first_name, last_name, id }) => {
+        managerChoice.push({
+          name: first_name + " " + last_name,
+          value: id
+        });
+      });
+    // Questions for updating manager
+
+      let questions = [
+        {
+          type: "list",
+          name: "id",
+          choices: employeeChoice,
+          message: "Who's employee manager do you want to update?"
+        },
+        {
+          type: "list",
+          name: "manager_id",
+          choices: managerChoice,
+          message: "Who is their new manager?"
+        }
+      ]
+
+      //Show questions
+    
+      inquier.prompt(questions)
+        .then(response => {
+          const query = `UPDATE EMPLOYEE SET ? WHERE id = ?;`;
+          let manager_id = response.manager_id !== 0? response.manager_id: null;
+          connection.query(query, [
+            {manager_id: manager_id},
+            response.id
+          ], (err, res) => {
+            if (err) throw err;
+              
+            console.log("Congrats! We succesfully updated the manager");
+            startPrompt();
+          });
+        })
+        .catch(err => {
+          console.error(err);
+        });
+    })
+    
+  };
