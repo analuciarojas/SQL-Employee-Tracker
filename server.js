@@ -79,8 +79,9 @@ function startPrompt() {
         case "Add Role":
         addRole();
         break;
+        //
         case "Update Employee Role":
-        updateRole();
+        updateemployeeRole();
         break;
         case "View Employees by manager":
         viewEmployeeByManager();
@@ -298,5 +299,69 @@ const addRole = () => {
       .catch(err => {
         console.error(err);
       });
+    });
+  }
+
+  // Updating role with employee
+const updateemployeeRole = () => {
+    // Gather employee info to choose which to modify 
+    connection.query("SELECT * FROM EMPLOYEE", (err, emplRes) => {
+      if (err) throw err;
+      // Empty employee array
+      const employeeChoice = [];
+      emplRes.forEach(({ first_name, last_name, id }) => {
+        employeeChoice.push({
+          name: first_name + " " + last_name,
+          value: id
+        });
+      });
+      
+    // Gather role info to modify
+        connection.query("SELECT * FROM ROLE", (err, rolRes) => {
+        if (err) throw err;
+        // Empty role array
+        const roleChoice = [];
+        rolRes.forEach(({ title, id }) => {
+          roleChoice.push({
+            name: title,
+            value: id
+            });
+          });
+        
+        // Questions to modify role
+
+        let questions = [
+          {
+            type: "list",
+            name: "id",
+            choices: employeeChoice,
+            message: "Which employee's role do you want to update?"
+          },
+          {
+            type: "list",
+            name: "role_id",
+            choices: roleChoice,
+            message: "Whay will be the employee's new role?"
+          }
+        ]
+    // Show questions
+    inquier.prompt(questions)
+          .then(response => {
+            const query = `UPDATE EMPLOYEE SET ? WHERE ?? = ?;`;
+            connection.query(query, [
+              {role_id: response.role_id},
+              "id",
+              response.id
+            ], (err) => {
+              if (err) throw err;
+              
+              console.log("Congrats! We could succesfully update employee's role!");
+              startPrompt();
+            });
+          })
+          .catch(err => {
+            console.error(err);
+          });
+        })
     });
   }
