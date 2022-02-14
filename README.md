@@ -130,6 +130,6 @@ This is a an image of a team profile deployed HTML file using this application.
 
 ## Links
 
-* [URL of the Youtube walktrough video](https://youtu.be/oX1NmrXa88g)
+* [URL of the Youtube walktrough video](https://youtu.be/Syc6dw9cWhE)
 
 * [URL of the GitHub repository](https://github.com/analuciarojas/SQL-Employee-Tracker)
