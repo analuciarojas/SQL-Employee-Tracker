@@ -50,8 +50,6 @@ function startPrompt() {
         "Add Role",
         "Update Employee Role",
         "Update Employee Manager",
-        "Delete a Department", 
-        "Delete a Role", 
         "Delete an Employee", 
         "View Total Budget of a Department", 
         "Exit"]
@@ -87,13 +85,6 @@ function startPrompt() {
         break;
         case "Update Employee Manager":
         updateManager();
-        break;
-       case "Delete a Department":
-        deleteDepartment();
-        break;
-        //
-        case "Delete a Role":
-        deleteRole();
         break;
         case "Delete an Employee":
         deleteEmployee();
@@ -494,43 +485,39 @@ const updateManager = ()=> {
     
   };
 
-  // Delete department
-const deleteDepartment = () => {
-    // Empty department array;
-    const departments = [];
+ // Delete employee
 
-    // Gather department info
-    connection.query("SELECT * FROM DEPARTMENT", (err, res) => {
+  const deleteEmployee = () => {
+    connection.query("SELECT * FROM EMPLOYEE", (err, res) => {
       if (err) throw err;
-  
-      res.forEach(dep => {
-        let qObj = {
-          name: dep.name,
-          value: dep.id
-        }
-
-        // Populate departments array 
-        departments.push(qObj);
+      // Empty employee array;
+      const employeeChoice = [];
+      res.forEach(({ first_name, last_name, id }) => {
+        // Populate choice array with employees
+        employeeChoice.push({
+          name: first_name + " " + last_name,
+          value: id
+        });
       });
+        // Questions for employee to delete
 
-      // Questions for what department to delete
-  
       let questions = [
         {
           type: "list",
           name: "id",
-          choices: departments,
-          message: "Which department do you want to delete?"
+          choices: employeeChoice,
+          message: "which employee do u want to delete?"
         }
       ];
-       
-      // Show questions
+      
+      // Show questions 
+
       inquier.prompt(questions)
       .then(response => {
-        const query = `DELETE FROM DEPARTMENT WHERE id = ?`;
+        const query = `DELETE FROM EMPLOYEE WHERE id = ?`;
         connection.query(query, [response.id], (err, res) => {
           if (err) throw err;
-          console.log(`Congrats! We succesfully deleted the department ${res.affectedRows}`);
+          console.log(`Congrats! We succesfully deleted the employee ${res.affectedRows} `);
           startPrompt();
         });
       })
