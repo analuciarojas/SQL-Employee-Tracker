@@ -93,6 +93,7 @@ function startPrompt() {
         viewBudget();
         break;
         default:
+        case "Goodbye!":
         connection.end();
     }
   })
@@ -487,7 +488,7 @@ const updateManager = ()=> {
 
  // Delete employee
 
-  const deleteEmployee = () => {
+const deleteEmployee = () => {
     connection.query("SELECT * FROM EMPLOYEE", (err, res) => {
       if (err) throw err;
       // Empty employee array;
@@ -525,4 +526,51 @@ const updateManager = ()=> {
         console.error(err);
       });
     });
+  };
+
+  // Sum of salaries per department
+const viewBudget = () => {
+    // Show different departments
+    connection.query("SELECT * FROM DEPARTMENT", (err, res) => {
+      if (err) throw err;
+      // Empty department array;
+      const depChoice = [];
+      res.forEach(({ name, id }) => {
+        // Populate array with current departments
+        depChoice.push({
+          name: name,
+          value: id
+        });
+      });
+      
+      // Ask which department you will to see their budget 
+      let questions = [
+        {
+          type: "list",
+          name: "id",
+          choices: depChoice,
+          message: "Which department's budget do you want to see?"
+        }
+      ];
+      // Show questions
+      inquier.prompt(questions)
+      .then(response => {
+        const query = `SELECT D.name, SUM(salary) AS budget FROM
+        EMPLOYEE AS E LEFT JOIN ROLE AS R
+        ON E.role_id = R.id
+        LEFT JOIN DEPARTMENT AS D
+        ON R.department_id = D.id
+        WHERE D.id = ?
+        `;
+        connection.query(query, [response.id], (err, res) => {
+          if (err) throw err;
+          console.table(res);
+          startPrompt();
+        });
+      })
+      .catch(err => {
+        console.error(err);
+      });
+    });
+  
   };
